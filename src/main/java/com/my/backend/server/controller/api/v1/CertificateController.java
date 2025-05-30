@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.cert.CertificateException;
 import java.util.Date;
 
 @RestController
@@ -20,31 +19,22 @@ public class CertificateController {
     @Autowired
     CertificateService certificateService;
 
+    /**
+     * Endpoint to parse a certificate from a base64 encoded string.
+     *
+     * @param request The request containing the base64 encoded certificate.
+     * @return ApiResponseDto containing the parsed certificate details or an error message.
+     */
     @PostMapping("/parser")
     public ApiResponseDto<CertificateResponseDto> getCertificate(@RequestBody CertificateRequestDto request) {
         // Logic to retrieve a certificate
         ApiResponseDto<CertificateResponseDto> response = new ApiResponseDto<>();
 
-        try {
-            CertificateResponseDto certificateResponseDto = certificateService.parseCertificate(request);
-
-            response.setCode(10000);
-            response.setMessage("Success");
-            response.setData(certificateResponseDto);
-            response.setTimestamp( new Date().toString() );
-        } catch (IllegalArgumentException e) {
-            response.setCode(10001);
-            response.setMessage(e.getMessage());
-            response.setData(null);
-            response.setTimestamp(new Date().toString());
-            return response;
-        } catch (CertificateException e) {
-            response.setCode(10002);
-            response.setMessage(e.getMessage());
-            response.setData(null);
-            response.setTimestamp(new Date().toString());
-            return response;
-        }
+        CertificateResponseDto certificateResponseDto = certificateService.parseCertificate(request);
+        response.setCode(10000);
+        response.setMessage("Success");
+        response.setData(certificateResponseDto);
+        response.setTimestamp( new Date().toString() );
 
         return response;
     }
