@@ -25,7 +25,7 @@ public class CertificateServiceImpl implements CertificateService {
             CertificateFactory factory = CertificateFactory.getInstance("X.509");
             X509Certificate certificate = (X509Certificate)factory.generateCertificate(new ByteArrayInputStream(decode));
 
-            certificateResponseDto.setSerialNumber(certificate.getSerialNumber().toString(16));
+            certificateResponseDto.setSerialNumber(certificate.getSerialNumber().toString(16).toUpperCase());
             certificateResponseDto.setSigAlgName(certificate.getSigAlgName());
             certificateResponseDto.setNotBefore(certificate.getNotBefore());
             certificateResponseDto.setNotAfter(certificate.getNotAfter());

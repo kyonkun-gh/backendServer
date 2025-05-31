@@ -5,19 +5,17 @@ import com.my.backend.server.dto.request.CertificateRequestDto;
 import com.my.backend.server.dto.response.CertificateResponseDto;
 import com.my.backend.server.service.CertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
 @RestController
 @RequestMapping("/api/v1/certificate")
+@CrossOrigin(origins = "*")
 public class CertificateController {
 
     @Autowired
-    CertificateService certificateService;
+    private CertificateService certificateService;
 
     /**
      * Endpoint to parse a certificate from a base64 encoded string.
