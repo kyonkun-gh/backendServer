@@ -26,9 +26,9 @@ public class CertificateController {
     @PostMapping("/parser")
     public ApiResponseDto<CertificateResponseDto> getCertificate(@RequestBody CertificateRequestDto request) {
         // Logic to retrieve a certificate
-        ApiResponseDto<CertificateResponseDto> response = new ApiResponseDto<>();
-
         CertificateResponseDto certificateResponseDto = certificateService.parseCertificate(request);
+
+        ApiResponseDto<CertificateResponseDto> response = new ApiResponseDto<>();
         response.setCode(10000);
         response.setMessage("Success");
         response.setData(certificateResponseDto);
