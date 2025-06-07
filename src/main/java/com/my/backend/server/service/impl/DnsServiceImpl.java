@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.my.backend.server.dto.response.DnsAnswerDto;
 import com.my.backend.server.dto.response.DnsGoogleDto;
 import com.my.backend.server.dto.response.DnsResponseDto;
+import com.my.backend.server.enums.DnsType;
 import com.my.backend.server.service.DnsService;
 import com.my.backend.server.service.HttpRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,7 @@ import org.xbill.DNS.Type;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class DnsServiceImpl implements DnsService {
@@ -31,31 +30,6 @@ public class DnsServiceImpl implements DnsService {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private static final Map<String, Integer> DNS_TYPE_MAP = new HashMap<>();
-    static {
-        DNS_TYPE_MAP.put("A", Type.A);
-        DNS_TYPE_MAP.put("NS", Type.NS);
-        DNS_TYPE_MAP.put("CNAME", Type.CNAME);
-        DNS_TYPE_MAP.put("SOA", Type.SOA);
-        DNS_TYPE_MAP.put("PTR", Type.PTR);
-        DNS_TYPE_MAP.put("MX", Type.MX);
-        DNS_TYPE_MAP.put("TXT", Type.TXT);
-        DNS_TYPE_MAP.put("AAAA", Type.AAAA);
-        DNS_TYPE_MAP.put("SRV", Type.SRV);
-        DNS_TYPE_MAP.put("CAA", Type.CAA);
-
-        DNS_TYPE_MAP.put("1", Type.A);
-        DNS_TYPE_MAP.put("2", Type.NS);
-        DNS_TYPE_MAP.put("5", Type.CNAME);
-        DNS_TYPE_MAP.put("6", Type.SOA);
-        DNS_TYPE_MAP.put("12", Type.PTR);
-        DNS_TYPE_MAP.put("15", Type.MX);
-        DNS_TYPE_MAP.put("16", Type.TXT);
-        DNS_TYPE_MAP.put("28", Type.AAAA);
-        DNS_TYPE_MAP.put("33", Type.SRV);
-        DNS_TYPE_MAP.put("257", Type.CAA);
-    }
 
     public DnsServiceImpl() {
         List<InetSocketAddress> resolvers = ResolverConfig.getCurrentConfig().servers();
@@ -108,8 +82,8 @@ public class DnsServiceImpl implements DnsService {
     }
 
     public DnsResponseDto dig(String domain, String type) {
-        int dnsType = getDnsType(type);
-        if ( dnsType == -1 ) {
+        DnsType dnsType = DnsType.fromNameOrValue(type);
+        if ( dnsType == null ) {
             throw new IllegalArgumentException("不支援的 DNS type: " + type);
         }
 
@@ -131,9 +105,9 @@ public class DnsServiceImpl implements DnsService {
                 }
             }
 
-            if ( dnsType != Type.CNAME ) {
+            if ( dnsType.getCode() != Type.CNAME ) {
                 // Perform the DNS lookup for the specified type
-                lookup = new Lookup(domain, dnsType);
+                lookup = new Lookup(domain, dnsType.getCode());
                 lookup.run();
                 if ( lookup.getResult() == Lookup.SUCCESSFUL ) {
                     for ( Record record : lookup.getAnswers() ) {
@@ -155,13 +129,5 @@ public class DnsServiceImpl implements DnsService {
         }
 
         return dnsResponseDto;
-    }
-
-    private int getDnsType(String type) {
-        if (type == null || type.isEmpty()) {
-            return Type.A;
-        }
-
-        return DNS_TYPE_MAP.getOrDefault(type.toUpperCase(), -1);
     }
 }
